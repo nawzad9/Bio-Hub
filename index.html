@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Bio-HuB — Biotechnology Department</title>
+<meta name="description" content="Bio-HuB — the central hub for all Biotechnology Department web apps at the University of Raparin.">
+
+<!-- PWA -->
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0b1a17" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#0d9488" media="(prefers-color-scheme: light)">
+
+<!-- iOS -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Bio-HuB">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="icon" type="image/svg+xml" href="icons/icon.svg">
+
+<style>
+  :root{
+    --bg:#f5f7f6; --bg2:#ffffff; --card:#ffffff; --line:#e2e8e6;
+    --text:#0f1f1c; --muted:#5d716c; --accent:#0d9488; --accent2:#65a30d;
+    --ring:rgba(13,148,136,.25); --shadow:0 1px 2px rgba(10,40,35,.06),0 8px 24px rgba(10,40,35,.07);
+    --radius:18px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#071311; --bg2:#0b1a17; --card:#0f211d; --line:#1d3833;
+      --text:#e8f3f0; --muted:#8fa8a2; --accent:#2dd4bf; --accent2:#a3e635;
+      --ring:rgba(45,212,191,.22); --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 30px rgba(0,0,0,.35);
+    }
+  }
+  html[data-theme="light"]{
+    --bg:#f5f7f6; --bg2:#ffffff; --card:#ffffff; --line:#e2e8e6;
+    --text:#0f1f1c; --muted:#5d716c; --accent:#0d9488; --accent2:#65a30d;
+    --ring:rgba(13,148,136,.25); --shadow:0 1px 2px rgba(10,40,35,.06),0 8px 24px rgba(10,40,35,.07);
+  }
+  html[data-theme="dark"]{
+    --bg:#071311; --bg2:#0b1a17; --card:#0f211d; --line:#1d3833;
+    --text:#e8f3f0; --muted:#8fa8a2; --accent:#2dd4bf; --accent2:#a3e635;
+    --ring:rgba(45,212,191,.22); --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 30px rgba(0,0,0,.35);
+  }
+
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--bg); color:var(--text); min-height:100vh;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans","Noto Sans Arabic","Segoe UI Historic",Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased; line-height:1.5;
+    padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    overflow-x:hidden;
+  }
+  body::before{
+    content:""; position:fixed; inset:0 0 auto 0; height:420px; z-index:-1; pointer-events:none;
+    background:
+      radial-gradient(900px 380px at 15% -10%, color-mix(in srgb, var(--accent) 22%, transparent), transparent 70%),
+      radial-gradient(700px 320px at 95% 0%, color-mix(in srgb, var(--accent2) 16%, transparent), transparent 70%);
+  }
+  .wrap{max-width:720px;margin:0 auto;padding:18px 16px 56px}
+
+  /* ---------- header ---------- */
+  header{display:flex;align-items:center;gap:12px;padding:6px 0 18px}
+  .logo{width:52px;height:52px;border-radius:15px;flex:0 0 auto;box-shadow:var(--shadow)}
+  .ttl{flex:1;min-width:0}
+  .ttl h1{margin:0;font-size:1.45rem;font-weight:800;letter-spacing:-.02em}
+  .ttl p{margin:1px 0 0;font-size:.8rem;color:var(--muted)}
+  .iconbtn{
+    width:38px;height:38px;flex:0 0 auto;display:grid;place-items:center;cursor:pointer;
+    border:1px solid var(--line);background:var(--card);color:var(--text);
+    border-radius:11px;font-size:.78rem;font-weight:700;
+  }
+  .iconbtn:active{transform:scale(.94)}
+  .hd-actions{display:flex;gap:7px}
+
+  /* ---------- status strip ---------- */
+  .strip{
+    display:flex;align-items:center;gap:8px;font-size:.78rem;color:var(--muted);
+    background:var(--card);border:1px solid var(--line);border-radius:12px;padding:9px 12px;margin-bottom:14px;
+  }
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--accent2);flex:0 0 auto}
+  .dot.off{background:#f59e0b}
+  .strip b{color:var(--text);font-weight:600}
+
+  /* ---------- install banner ---------- */
+  .install{
+    display:none;gap:12px;align-items:center;
+    background:linear-gradient(135deg,color-mix(in srgb,var(--accent) 16%,var(--card)),var(--card));
+    border:1px solid color-mix(in srgb,var(--accent) 35%,var(--line));
+    border-radius:var(--radius);padding:14px;margin-bottom:16px;box-shadow:var(--shadow);
+  }
+  .install.show{display:flex}
+  .install svg{flex:0 0 auto;color:var(--accent)}
+  .install .txt{flex:1;min-width:0}
+  .install .txt b{display:block;font-size:.92rem}
+  .install .txt span{font-size:.76rem;color:var(--muted)}
+  .btn{
+    border:0;cursor:pointer;border-radius:11px;padding:10px 15px;font-size:.84rem;font-weight:700;
+    background:var(--accent);color:#04201c;font-family:inherit;white-space:nowrap;
+  }
+  html[data-theme="light"] .btn{color:#fff}
+  @media (prefers-color-scheme: light){html:not([data-theme="dark"]) .btn{color:#fff}}
+  .btn:active{transform:scale(.96)}
+  .btn.ghost{background:transparent;color:var(--accent);border:1px solid var(--line)}
+
+  /* ---------- search ---------- */
+  .search{display:none;position:relative;margin-bottom:14px}
+  .search.show{display:block}
+  .search input{
+    width:100%;padding:12px 14px;border-radius:13px;border:1px solid var(--line);
+    background:var(--card);color:var(--text);font-size:.92rem;font-family:inherit;
+  }
+  .search input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 4px var(--ring)}
+
+  /* ---------- cards ---------- */
+  .sect{font-size:.72rem;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin:4px 2px 10px}
+  .grid{display:grid;gap:12px}
+  @media(min-width:560px){.grid{grid-template-columns:1fr 1fr}}
+
+  .card{
+    display:flex;gap:13px;align-items:flex-start;text-decoration:none;color:inherit;
+    background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    padding:15px;box-shadow:var(--shadow);position:relative;overflow:hidden;
+    transition:transform .14s ease, border-color .14s ease;
+  }
+  .card:active{transform:scale(.985)}
+  .card::after{
+    content:"";position:absolute;inset:0 auto 0 0;width:3px;
+    background:linear-gradient(var(--accent),var(--accent2));opacity:.85;
+  }
+  .ic{
+    width:46px;height:46px;flex:0 0 auto;border-radius:13px;display:grid;place-items:center;color:#fff;
+  }
+  .ic svg{width:24px;height:24px}
+  .cb{flex:1;min-width:0}
+  .cb h3{margin:0;font-size:1rem;font-weight:700;letter-spacing:-.01em}
+  .cb p{margin:3px 0 0;font-size:.79rem;color:var(--muted)}
+  .tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}
+  .tag{
+    font-size:.66rem;font-weight:700;letter-spacing:.03em;padding:3px 8px;border-radius:999px;
+    background:color-mix(in srgb,var(--accent) 14%,transparent);color:var(--accent);
+    border:1px solid color-mix(in srgb,var(--accent) 25%,transparent);
+  }
+  .arrow{align-self:center;color:var(--muted);flex:0 0 auto}
+  html[dir="rtl"] .arrow{transform:scaleX(-1)}
+  html[dir="rtl"] .card::after{inset:0 0 0 auto}
+
+  .empty{text-align:center;color:var(--muted);font-size:.86rem;padding:26px 0;display:none}
+  .empty.show{display:block}
+
+  /* ---------- footer ---------- */
+  footer{margin-top:30px;text-align:center;font-size:.73rem;color:var(--muted);line-height:1.7}
+  footer a{color:var(--accent);text-decoration:none}
+
+  /* ---------- sheet / modal ---------- */
+  .scrim{
+    position:fixed;inset:0;background:rgba(2,12,10,.6);backdrop-filter:blur(3px);
+    display:none;z-index:40;align-items:flex-end;justify-content:center;
+  }
+  .scrim.show{display:flex}
+  .sheet{
+    background:var(--bg2);width:100%;max-width:520px;border-radius:22px 22px 0 0;
+    border-top:1px solid var(--line);padding:20px 20px calc(24px + env(safe-area-inset-bottom));
+    max-height:88vh;overflow-y:auto;animation:up .24s cubic-bezier(.2,.9,.3,1);
+  }
+  @media(min-width:560px){
+    .scrim{align-items:center}
+    .sheet{border-radius:22px;border:1px solid var(--line)}
+  }
+  @keyframes up{from{transform:translateY(22px);opacity:.4}to{transform:none;opacity:1}}
+  .sheet h2{margin:0 0 4px;font-size:1.12rem;font-weight:800}
+  .sheet .sub{margin:0 0 16px;font-size:.82rem;color:var(--muted)}
+  .steps{list-style:none;margin:0;padding:0;display:grid;gap:11px}
+  .steps li{display:flex;gap:11px;align-items:flex-start;font-size:.87rem}
+  .num{
+    width:25px;height:25px;flex:0 0 auto;border-radius:50%;display:grid;place-items:center;
+    background:color-mix(in srgb,var(--accent) 16%,transparent);color:var(--accent);
+    font-size:.76rem;font-weight:800;border:1px solid color-mix(in srgb,var(--accent) 30%,transparent);
+  }
+  .steps b{font-weight:700}
+  .inline-ic{display:inline-grid;place-items:center;vertical-align:-4px;width:18px;height:18px;color:var(--accent)}
+  .note{
+    margin-top:16px;font-size:.78rem;color:var(--muted);background:var(--card);
+    border:1px solid var(--line);border-radius:12px;padding:11px 13px;
+  }
+  .sheet .btn{width:100%;margin-top:16px;padding:13px}
+  .tabs{display:flex;gap:6px;margin-bottom:16px;background:var(--card);padding:4px;border-radius:12px;border:1px solid var(--line)}
+  .tabs button{
+    flex:1;border:0;background:transparent;color:var(--muted);font-family:inherit;
+    font-size:.82rem;font-weight:700;padding:8px;border-radius:9px;cursor:pointer;
+  }
+  .tabs button[aria-selected="true"]{background:var(--bg2);color:var(--text);box-shadow:var(--shadow)}
+  .pane{display:none}
+  .pane.show{display:block}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <img src="icons/icon.svg" alt="" class="logo" width="52" height="52">
+    <div class="ttl">
+      <h1 data-i18n="title">Bio-HuB</h1>
+      <p data-i18n="subtitle">Biotechnology Dept. · University of Raparin</p>
+    </div>
+    <div class="hd-actions">
+      <button class="iconbtn" id="langBtn" type="button" aria-label="Change language">KU</button>
+      <button class="iconbtn" id="themeBtn" type="button" aria-label="Change theme">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3v1m0 16v1m9-10h-1M4 12H3m15.36-6.36-.7.7M6.34 17.66l-.7.7m12.72 0-.7-.7M6.34 6.34l-.7-.7"/><circle cx="12" cy="12" r="4"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <div class="strip">
+    <span class="dot" id="netDot"></span>
+    <span id="netTxt" data-i18n="online"><b>Online</b> — all apps reachable</span>
+  </div>
+
+  <div class="install" id="installBar">
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 11 5 5 5-5"/><path d="M5 21h14"/></svg>
+    <div class="txt">
+      <b data-i18n="installTitle">Install Bio-HuB</b>
+      <span data-i18n="installSub">Add it to your home screen — works offline</span>
+    </div>
+    <button class="btn" id="installBtn" type="button" data-i18n="installBtn">Install</button>
+  </div>
+
+  <div class="search" id="searchWrap">
+    <input type="search" id="q" placeholder="Search apps…" data-i18n-ph="searchPh" autocomplete="off">
+  </div>
+
+  <div class="sect" data-i18n="sectApps">Department Apps</div>
+  <div class="grid" id="grid"></div>
+  <div class="empty" id="empty" data-i18n="noResults">No app matches your search.</div>
+
+  <footer>
+    <p>
+      <span data-i18n="footer1">Bio-HuB · Biotechnology Department · University of Raparin</span><br>
+      <span data-i18n="footer2">Each app installs separately and keeps working offline.</span>
+    </p>
+    <p><a href="#" id="howBtn" data-i18n="howLink">How to install on iPhone &amp; Android</a></p>
+  </footer>
+</div>
+
+<!-- ============ install sheet ============ -->
+<div class="scrim" id="scrim">
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="shTitle">
+    <h2 id="shTitle" data-i18n="howTitle">Install as an app</h2>
+    <p class="sub" data-i18n="howSub">Once installed it opens full-screen from your home screen and works without internet.</p>
+
+    <div class="tabs" role="tablist">
+      <button type="button" role="tab" id="tabIos" aria-selected="true" aria-controls="paneIos">iPhone / iPad</button>
+      <button type="button" role="tab" id="tabAnd" aria-selected="false" aria-controls="paneAnd">Android</button>
+    </div>
+
+    <div class="pane show" id="paneIos" role="tabpanel">
+      <ol class="steps">
+        <li><span class="num">1</span><span data-i18n="ios1">Open this page in <b>Safari</b> (it must be Safari — Chrome on iPhone cannot install apps).</span></li>
+        <li><span class="num">2</span><span data-i18n="ios2">Tap the <b>Share</b> button
+          <span class="inline-ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V3"/><path d="m8 7 4-4 4 4"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg></span>
+          at the bottom of the screen.</span></li>
+        <li><span class="num">3</span><span data-i18n="ios3">Scroll down and choose <b>Add to Home Screen</b>.</span></li>
+        <li><span class="num">4</span><span data-i18n="ios4">Tap <b>Add</b>. The Bio-HuB icon appears on your home screen.</span></li>
+      </ol>
+      <div class="note" data-i18n="iosNote">Tip: open each app inside Bio-HuB once while you have internet, then install it the same way — iPhone keeps every app offline separately.</div>
+    </div>
+
+    <div class="pane" id="paneAnd" role="tabpanel">
+      <ol class="steps">
+        <li><span class="num">1</span><span data-i18n="and1">Open this page in <b>Chrome</b>.</span></li>
+        <li><span class="num">2</span><span data-i18n="and2">Tap the <b>Install</b> button above, or the <b>⋮</b> menu in the top-right.</span></li>
+        <li><span class="num">3</span><span data-i18n="and3">Choose <b>Install app</b> / <b>Add to Home screen</b>, then confirm.</span></li>
+        <li><span class="num">4</span><span data-i18n="and4">Bio-HuB is added to your app drawer like a normal app.</span></li>
+      </ol>
+      <div class="note" data-i18n="andNote">If the Install button does nothing, the app is already installed — check your home screen.</div>
+    </div>
+
+    <button class="btn" id="closeSheet" type="button" data-i18n="close">Close</button>
+  </div>
+</div>
+
+<script>
+/* ======================================================================
+   1) THE APP LIST — add a new app by copying one block and editing it.
+   ====================================================================== */
+const APPS = [
+  {
+    name:   { en:"Attendance", ku:"ئامادەبوون" },
+    desc:   { en:"Record and track student attendance for Biotechnology classes.",
+              ku:"تۆمارکردن و بەدواداچوونی ئامادەبوونی خوێندکارانی بایۆتەکنەلۆجی." },
+    url:    "https://attendance-bio.pages.dev/",
+    tags:   { en:["Teachers","Daily"], ku:["مامۆستایان","ڕۆژانە"] },
+    colors: ["#0d9488","#14b8a6"],
+    icon:   '<path d="M8 2v4M16 2v4M3 10h18"/><rect x="3" y="4" width="18" height="18" rx="2"/><path d="m9 16 2 2 4-4"/>'
+  },
+  {
+    name:   { en:"Official Forms", ku:"فۆڕمە فەرمییەکان" },
+    desc:   { en:"Download and submit the department's official forms (PDF).",
+              ku:"داگرتن و ناردنی فۆڕمە فەرمییەکانی بەش (PDF)." },
+    url:    "https://nawzad9.github.io/biotech-forms/",
+    tags:   { en:["Students","Staff"], ku:["خوێندکاران","ستاف"] },
+    colors: ["#65a30d","#84cc16"],
+    icon:   '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 13h6M9 17h4"/>'
+  }
+  /* ,{
+    name:{en:"New App",ku:"ئەپی نوێ"},
+    desc:{en:"Short description.",ku:"کورتە باسێک."},
+    url:"https://example.pages.dev/",
+    tags:{en:["Tag"],ku:["تاگ"]},
+    colors:["#0891b2","#06b6d4"],
+    icon:'<circle cx="12" cy="12" r="9"/>'
+  } */
+];
+
+/* ======================================================================
+   2) TRANSLATIONS
+   ====================================================================== */
+const T = {
+  en:{
+    title:"Bio-HuB", subtitle:"Biotechnology Dept. · University of Raparin",
+    online:"<b>Online</b> — all apps reachable",
+    offline:"<b>Offline</b> — hub works, apps need internet",
+    installTitle:"Install Bio-HuB", installSub:"Add it to your home screen — works offline",
+    installBtn:"Install", searchPh:"Search apps…", sectApps:"Department Apps",
+    noResults:"No app matches your search.",
+    footer1:"Bio-HuB · Biotechnology Department · University of Raparin",
+    footer2:"Each app installs separately and keeps working offline.",
+    howLink:"How to install on iPhone & Android",
+    howTitle:"Install as an app",
+    howSub:"Once installed it opens full-screen from your home screen and works without internet.",
+    ios1:"Open this page in <b>Safari</b> (it must be Safari — Chrome on iPhone cannot install apps).",
+    ios2:'Tap the <b>Share</b> button <span class="inline-ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V3"/><path d="m8 7 4-4 4 4"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg></span> at the bottom of the screen.',
+    ios3:"Scroll down and choose <b>Add to Home Screen</b>.",
+    ios4:"Tap <b>Add</b>. The Bio-HuB icon appears on your home screen.",
+    iosNote:"Tip: open each app inside Bio-HuB once while you have internet, then install it the same way — iPhone keeps every app offline separately.",
+    and1:"Open this page in <b>Chrome</b>.",
+    and2:"Tap the <b>Install</b> button above, or the <b>⋮</b> menu in the top-right.",
+    and3:"Choose <b>Install app</b> / <b>Add to Home screen</b>, then confirm.",
+    and4:"Bio-HuB is added to your app drawer like a normal app.",
+    andNote:"If the Install button does nothing, the app is already installed — check your home screen.",
+    close:"Close", installed:"<b>Installed</b> — running as an app"
+  },
+  ku:{
+    title:"بایۆ-هەب", subtitle:"بەشی بایۆتەکنەلۆجی · زانکۆی ڕاپەڕین",
+    online:"<b>سەرهێڵ</b> — هەموو ئەپەکان بەردەستن",
+    offline:"<b>دەرهێڵ</b> — هەبەکە کاردەکات، ئەپەکان ئینتەرنێتیان دەوێت",
+    installTitle:"دابەزاندنی بایۆ-هەب", installSub:"زیادی بکە بۆ ڕووپەڕی سەرەکی — بێ ئینتەرنێت کاردەکات",
+    installBtn:"دابەزاندن", searchPh:"گەڕان بەدوای ئەپ…", sectApps:"ئەپەکانی بەش",
+    noResults:"هیچ ئەپێک نەدۆزرایەوە.",
+    footer1:"بایۆ-هەب · بەشی بایۆتەکنەلۆجی · زانکۆی ڕاپەڕین",
+    footer2:"هەر ئەپێک بە جیا دادەبەزێت و بێ ئینتەرنێت کاردەکات.",
+    howLink:"چۆن لەسەر ئایفۆن و ئەندرۆید دایبەزێنین",
+    howTitle:"وەک ئەپ دایبەزێنە",
+    howSub:"دوای دابەزاندن لە ڕووپەڕی سەرەکییەوە بە تەواوی شاشە دەکرێتەوە و بێ ئینتەرنێت کاردەکات.",
+    ios1:"ئەم پەڕەیە لە <b>Safari</b> بکەرەوە (دەبێت Safari بێت — Chrome لەسەر ئایفۆن ناتوانێت ئەپ دابەزێنێت).",
+    ios2:'دوگمەی <b>Share</b> <span class="inline-ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V3"/><path d="m8 7 4-4 4 4"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg></span> لە خوارەوەی شاشەکە دابگرە.',
+    ios3:"بەرەو خوارەوە بڕۆ و <b>Add to Home Screen</b> هەڵبژێرە.",
+    ios4:"<b>Add</b> دابگرە. ئایکۆنی بایۆ-هەب لە ڕووپەڕی سەرەکیدا دەردەکەوێت.",
+    iosNote:"ئامۆژگاری: کاتێک ئینتەرنێتت هەیە جارێک هەر ئەپێک لە بایۆ-هەبەوە بکەرەوە، پاشان بە هەمان شێوە دایبەزێنە — ئایفۆن هەر ئەپێک بە جیا دەپارێزێت.",
+    and1:"ئەم پەڕەیە لە <b>Chrome</b> بکەرەوە.",
+    and2:"دوگمەی <b>دابەزاندن</b>ی سەرەوە، یان مێنیوی <b>⋮</b> لە سەرەوەی ڕاست دابگرە.",
+    and3:"<b>Install app</b> / <b>Add to Home screen</b> هەڵبژێرە و پشتڕاستی بکەرەوە.",
+    and4:"بایۆ-هەب وەک ئەپێکی ئاسایی زیاد دەکرێت.",
+    andNote:"ئەگەر دوگمەی دابەزاندن کاری نەکرد، واتە پێشتر دابەزێنراوە — ڕووپەڕی سەرەکی بپشکنە.",
+    close:"داخستن", installed:"<b>دابەزێنراوە</b> — وەک ئەپ کاردەکات"
+  }
+};
+
+/* ======================================================================
+   3) APP LOGIC
+   ====================================================================== */
+const $ = s => document.querySelector(s);
+const store = {
+  get(k,d){ try{ return localStorage.getItem(k) ?? d; }catch(e){ return d; } },
+  set(k,v){ try{ localStorage.setItem(k,v); }catch(e){} }
+};
+
+let lang = store.get('biohub-lang','en');
+let appInstalled = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+
+/* ---- render cards ---- */
+function render(filter){
+  const grid = $('#grid'); const f = (filter||'').trim().toLowerCase();
+  const list = APPS.filter(a => !f ||
+    (a.name[lang]+' '+a.desc[lang]+' '+a.name.en+' '+(a.tags[lang]||[]).join(' ')).toLowerCase().includes(f));
+  grid.innerHTML = list.map(a => `
+    <a class="card" href="${a.url}" target="_blank" rel="noopener">
+      <span class="ic" style="background:linear-gradient(135deg,${a.colors[0]},${a.colors[1]})">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${a.icon}</svg>
+      </span>
+      <span class="cb">
+        <h3>${a.name[lang]}</h3>
+        <p>${a.desc[lang]}</p>
+        <span class="tags">${(a.tags[lang]||[]).map(t=>`<span class="tag">${t}</span>`).join('')}</span>
+      </span>
+      <svg class="arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+    </a>`).join('');
+  $('#empty').classList.toggle('show', list.length === 0);
+  $('#searchWrap').classList.toggle('show', APPS.length > 4);
+}
+
+/* ---- language ---- */
+function applyLang(){
+  const t = T[lang];
+  document.documentElement.lang = lang === 'ku' ? 'ckb' : 'en';
+  document.documentElement.dir  = lang === 'ku' ? 'rtl' : 'ltr';
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const v = t[el.dataset.i18n]; if(v !== undefined) el.innerHTML = v;
+  });
+  document.querySelectorAll('[data-i18n-ph]').forEach(el=>{
+    const v = t[el.dataset.i18nPh]; if(v !== undefined) el.placeholder = v;
+  });
+  $('#langBtn').textContent = lang === 'en' ? 'KU' : 'EN';
+  document.title = (lang==='ku' ? 'بایۆ-هەب — بەشی بایۆتەکنەلۆجی' : 'Bio-HuB — Biotechnology Department');
+  updateNet();
+  render($('#q').value);
+}
+$('#langBtn').addEventListener('click', ()=>{
+  lang = lang === 'en' ? 'ku' : 'en';
+  store.set('biohub-lang', lang);
+  applyLang();
+});
+
+/* ---- theme ---- */
+$('#themeBtn').addEventListener('click', ()=>{
+  const cur = document.documentElement.getAttribute('data-theme');
+  const next = cur === 'dark' ? 'light' : cur === 'light' ? '' : 'dark';
+  if(next) document.documentElement.setAttribute('data-theme', next);
+  else document.documentElement.removeAttribute('data-theme');
+  store.set('biohub-theme', next);
+});
+(function(){ const s = store.get('biohub-theme',''); if(s) document.documentElement.setAttribute('data-theme', s); })();
+
+/* ---- online / offline ---- */
+function updateNet(){
+  const on = navigator.onLine;
+  $('#netDot').classList.toggle('off', !on);
+  if(appInstalled && on) $('#netTxt').innerHTML = T[lang].installed;
+  else $('#netTxt').innerHTML = on ? T[lang].online : T[lang].offline;
+}
+window.addEventListener('online', updateNet);
+window.addEventListener('offline', updateNet);
+
+/* ---- search ---- */
+$('#q').addEventListener('input', e => render(e.target.value));
+
+/* ---- install flow ---- */
+let deferred = null;
+const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) ||
+              (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault(); deferred = e;
+  if(!appInstalled) $('#installBar').classList.add('show');
+});
+window.addEventListener('appinstalled', ()=>{
+  appInstalled = true; deferred = null;
+  $('#installBar').classList.remove('show'); updateNet();
+});
+if(!appInstalled && isIOS) $('#installBar').classList.add('show');
+
+function openSheet(tab){
+  const ios = tab === 'ios';
+  $('#tabIos').setAttribute('aria-selected', ios);
+  $('#tabAnd').setAttribute('aria-selected', !ios);
+  $('#paneIos').classList.toggle('show', ios);
+  $('#paneAnd').classList.toggle('show', !ios);
+  $('#scrim').classList.add('show');
+}
+function closeSheet(){ $('#scrim').classList.remove('show'); }
+
+$('#installBtn').addEventListener('click', async ()=>{
+  if(deferred){ deferred.prompt(); await deferred.userChoice; deferred = null; return; }
+  openSheet(isIOS ? 'ios' : 'and');
+});
+$('#howBtn').addEventListener('click', e => { e.preventDefault(); openSheet(isIOS ? 'ios' : 'and'); });
+$('#tabIos').addEventListener('click', ()=>openSheet('ios'));
+$('#tabAnd').addEventListener('click', ()=>openSheet('and'));
+$('#closeSheet').addEventListener('click', closeSheet);
+$('#scrim').addEventListener('click', e => { if(e.target === $('#scrim')) closeSheet(); });
+document.addEventListener('keydown', e => { if(e.key === 'Escape') closeSheet(); });
+
+/* ---- service worker ---- */
+if('serviceWorker' in navigator){
+  window.addEventListener('load', ()=> navigator.serviceWorker.register('sw.js').catch(()=>{}));
+}
+
+/* ---- go ---- */
+applyLang();
+</script>
+</body>
+</html>
